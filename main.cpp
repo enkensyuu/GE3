@@ -942,7 +942,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	device->CreateShaderResourceView(texBuff2.Get(), &srvDesc, srvHandle);
 
 	size_t textureIndex = 0;
-	BYTE key[256] = {};
+	
 
 	// ゲームループ
 	while (true) {
@@ -957,10 +957,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			break;
 		}
 
-		// キーボード情報の取得開始
-		keyboard->Acquire();
-		// 全キーの入力状態を取得する
-		keyboard->GetDeviceState(sizeof(key), key);
+		input->Update();
 
 		//// 数字の0キーが押されていたら
 		//if (key[DIK_0]) 
