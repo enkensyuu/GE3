@@ -13,6 +13,16 @@ public:
 	/// </summary>
 	void Initialize(WinApp*winApp);
 
+	/// <summary>
+	///  描画前処理
+	/// </summary>
+	void PreDraw();
+
+	/// <summary>
+	/// 描画後処理
+	/// </summary>
+	void PostDraw();
+
 private:
 	/// <summary>
 	/// デバイス初期化
@@ -69,5 +79,9 @@ private:
 
 	// フェンス
 	Microsoft::WRL::ComPtr<ID3D12Fence> fence;
+
+	// フェンスの生成
+	UINT64 fenceVal = 0;
+
 };
 
