@@ -28,6 +28,9 @@ void DirectXCommon::Initialize(WinApp* winApp)
 
 	// 深度バッファーの初期化
 	InitializeDepthBuffer();
+
+	// フェンスの初期化
+	InitializeFence();
 	// DirectX初期化処理　ここまで
 }
 
@@ -87,6 +90,7 @@ void DirectXCommon::PostDraw()
 
 	// ５．リソースバリアを戻す
 	D3D12_RESOURCE_BARRIER barrierDesc{};
+	barrierDesc.Transition.pResource = backBuffers[bbIndex].Get(); // バックバッファを指定
 	barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET; // 描画状態から
 	barrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;        // 表示状態へ
 	commandList->ResourceBarrier(1, &barrierDesc);
