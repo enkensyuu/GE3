@@ -4,6 +4,7 @@
 #include <wrl.h>
 #include <vector>
 #include"WinApp.h"
+#include<chrono>
 
 class DirectXCommon
 {
@@ -62,6 +63,15 @@ private:
 	/// </summary>
 	void InitializeFence();
 
+	/// <summary>
+	/// FPS固定初期化
+	/// </summary>
+	void InitializeFixFPS();
+
+	/// <summary>
+	/// FPS固定更新
+	/// </summary>
+	void UpdateFPS();
 
 private:
 	WinApp* winApp = nullptr;
@@ -93,5 +103,7 @@ private:
 	// フェンスの生成
 	UINT64 fenceVal = 0;
 
+	// 記録時間(FPS固定用)
+	std::chrono::steady_clock::time_point reference_;
 };
 
