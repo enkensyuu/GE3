@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="リソース ファイル\Basic">
+      <UniqueIdentifier>{bb5f9a68-f7dd-4105-8687-cc8c79bcc0d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="リソース ファイル\Sprite">
+      <UniqueIdentifier>{9845a0b0-be6d-438f-99c0-3d9692eee5c1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -27,18 +33,33 @@
     <ClCompile Include="DirectXCommon.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="Sprite.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="SpriteCommon.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\shaders\Basic.hlsli">
-      <Filter>リソース ファイル</Filter>
+      <Filter>リソース ファイル\Basic</Filter>
+    </None>
+    <None Include="Resources\shaders\Sprite.hlsli">
+      <Filter>リソース ファイル\Sprite</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Resources\shaders\BasicPS.hlsl">
-      <Filter>リソース ファイル</Filter>
+      <Filter>リソース ファイル\Basic</Filter>
     </FxCompile>
     <FxCompile Include="Resources\shaders\BasicVS.hlsl">
-      <Filter>リソース ファイル</Filter>
+      <Filter>リソース ファイル\Basic</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\shaders\SpritePS.hlsl">
+      <Filter>リソース ファイル\Sprite</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\shaders\SpriteVS.hlsl">
+      <Filter>リソース ファイル\Sprite</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
@@ -49,6 +70,12 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="DirectXCommon.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Sprite.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="SpriteCommon.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

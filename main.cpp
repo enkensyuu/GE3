@@ -1,6 +1,8 @@
 ﻿#include "Input.h"
 #include"WinApp.h"
 #include"DirectXCommon.h"
+#include "Sprite.h"
+#include "SpriteCommon.h"
 
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
@@ -24,9 +26,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	input = new Input();
 	input->Initialize(winApp);
 
+	SpriteCommon* spriteCommon = nullptr;
+	// スプライト共通部の初期化
+	spriteCommon = new SpriteCommon;
+	spriteCommon->Initialize(dxCommon);
+
 #pragma endregion
 
 #pragma region 最初のシーンの初期化
+
+	Sprite* sprite = new Sprite();
+	sprite->Initialize(spriteCommon);
 
 #pragma endregion
 
@@ -56,7 +66,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		dxCommon->PreDraw();
 
 #pragma region 最初のシーンの描画
-
+		spriteCommon->PreDraw();
+		sprite->Draw();
 #pragma endregion
 
 		// 描画後処理
@@ -66,7 +77,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma endregion
 
 #pragma region 最初のシーンの終了
-
+	delete sprite;
 #pragma endregion
 
 #pragma region 基盤システムの終了
@@ -76,6 +87,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	// DirectX解放
 	delete dxCommon;
+
+	delete spriteCommon;
 
 	// WindowsAPIの終了処理
 	winApp->Finalize();
