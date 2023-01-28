@@ -12,10 +12,10 @@ void Sprite::Initialize(SpriteCommon* spriteCommon_)
 	// 頂点データ
 	Vertex vertices[] = {
 		//	x	  y		z	  u		v
-		{{-0.5f,-0.5f,0.0f},{0.0f,1.0f}}, // 左下
-		{{-0.5f,+0.5f,0.0f},{0.0f,0.0f}}, // 左上
-		{{+0.5f,-0.5f,0.0f},{1.0f,1.0f}}, // 右下
-		{{+0.5f,+0.5f,0.0f},{1.0f,0.0f}}, // 右上
+		{{  0.0f, 100.0f,0.0f},{0.0f,1.0f}}, // 左下
+		{{  0.0f,   0.0f,0.0f},{0.0f,0.0f}}, // 左上
+		{{100.0f, 100.0f,0.0f},{1.0f,1.0f}}, // 右下
+		{{100.0f,   0.0f,0.0f},{1.0f,0.0f}}, // 右上
 	};
 	// 頂点データ全体のサイズ = 頂点データ一つ分のサイズ * 頂点データの要素数
 	UINT sizeVB = static_cast<UINT>(sizeof(vertices[0]) * _countof(vertices));
@@ -59,6 +59,8 @@ void Sprite::Initialize(SpriteCommon* spriteCommon_)
 	vbView.SizeInBytes = sizeVB;
 	// 頂点1つ分のデータサイズ
 	vbView.StrideInBytes = sizeof(vertices[0]);
+
+	// マテリアル
 	{
 		// ヒープ設定
 		D3D12_HEAP_PROPERTIES cbHeapProp{};
@@ -89,11 +91,50 @@ void Sprite::Initialize(SpriteCommon* spriteCommon_)
 
 		constMapMaterial->color = color_;
 	}
+
+
+	// 行列
+	{
+		//ヒープ設定
+		D3D12_HEAP_PROPERTIES cbHeapProp{};
+		cbHeapProp.Type = D3D12_HEAP_TYPE_UPLOAD;
+		//リソース設定
+		D3D12_RESOURCE_DESC cbResourceDesc{};
+		cbResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+		cbResourceDesc.Width = (sizeof(ConstBufferDataTransform) + 0xff) & ~0xff;
+		cbResourceDesc.Height = 1;
+		cbResourceDesc.DepthOrArraySize = 1;
+		cbResourceDesc.MipLevels = 1;
+		cbResourceDesc.SampleDesc.Count = 1;
+		cbResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+
+		//定数バッファの生成
+		result = spriteCommon->GetDirectXCommon()->GetDevice()->CreateCommittedResource(
+			&cbHeapProp,
+			D3D12_HEAP_FLAG_NONE,
+			&cbResourceDesc,
+			D3D12_RESOURCE_STATE_GENERIC_READ,
+			nullptr,
+			IID_PPV_ARGS(&constBuffTransform));
+		assert(SUCCEEDED(result));
+
+		// 定数バッファのマッピング
+		result = constBuffTransform->Map(0, nullptr, (void**)&constMapTransform);	//	マッピング
+		assert(SUCCEEDED(result));
+
+		// 単位行列を代入
+		constMapTransform->mat = XMMatrixIdentity();
+		constMapTransform->mat.r[0].m128_f32[0] = 2.0f / window_width;
+		constMapTransform->mat.r[1].m128_f32[1] = -2.0f / window_height;
+		constMapTransform->mat.r[3].m128_f32[0] = -1.0f;
+		constMapTransform->mat.r[3].m128_f32[1] = 1.0f;
+	}
 }
 
 void Sprite::Draw()
 {
 	spriteCommon->GetDirectXCommon()->GetCommandList()->IASetVertexBuffers(0, 1, &vbView);
 	spriteCommon->GetDirectXCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(0, constBuffMaterial->GetGPUVirtualAddress());
+	spriteCommon->GetDirectXCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(2, constBuffTransform->GetGPUVirtualAddress());
 	spriteCommon->GetDirectXCommon()->GetCommandList()->DrawInstanced(4, 1, 0, 0);
 }

@@ -6,10 +6,18 @@
 class Sprite
 {
 private:
+	const int window_width = 1280;
+	const int window_height = 1280;
+
 	// 定数バッファ用データ構造体(マテリアル)
 	struct ConstBufferDataMaterial
 	{
 		DirectX::XMFLOAT4 color; // 色(RGBA)
+	};
+
+	// 定数バッファ用データ構造体(3D変換行列)
+	struct ConstBufferDataTransform {
+		DirectX::XMMATRIX mat;	//	3D変換行列
 	};
 
 	// 頂点データ構造体
@@ -40,5 +48,8 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> constBuffMaterial;
 	ConstBufferDataMaterial* constMapMaterial = nullptr;
+
+	Microsoft::WRL::ComPtr<ID3D12Resource> constBuffTransform;
+	ConstBufferDataTransform* constMapTransform = nullptr;
 };
 
