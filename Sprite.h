@@ -31,7 +31,7 @@ private:
 	// スプライト共通部分
 	SpriteCommon* spriteCommon = nullptr;
 
-	DirectX::XMFLOAT4 color_ = { 1.0f,0.0f,0.0f,0.5f };
+	DirectX::XMFLOAT4 color_ = { 1.0f,1.0f,1.0f,1.0f };
 
 	// 頂点バッファ
 	Microsoft::WRL::ComPtr<ID3D12Resource> vertBuff;
