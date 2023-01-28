@@ -12,6 +12,12 @@ private:
 		DirectX::XMFLOAT4 color; // 色(RGBA)
 	};
 
+	// 頂点データ構造体
+	struct Vertex
+	{
+		DirectX::XMFLOAT3 pos;	//	xyz座標
+		DirectX::XMFLOAT2 uv;	//	uv座標
+	};
 
 public:	// メンバ関数
 
