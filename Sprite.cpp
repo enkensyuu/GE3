@@ -122,13 +122,58 @@ void Sprite::Initialize(SpriteCommon* spriteCommon_)
 		result = constBuffTransform->Map(0, nullptr, (void**)&constMapTransform);	//	マッピング
 		assert(SUCCEEDED(result));
 
-		// 単位行列を代入
-		constMapTransform->mat = XMMatrixIdentity();
-		constMapTransform->mat.r[0].m128_f32[0] = 2.0f / window_width;
-		constMapTransform->mat.r[1].m128_f32[1] = -2.0f / window_height;
-		constMapTransform->mat.r[3].m128_f32[0] = -1.0f;
-		constMapTransform->mat.r[3].m128_f32[1] = 1.0f;
+		// ワールド変換行列
+		XMMATRIX matWorld;
+		matWorld = XMMatrixIdentity();
+
+		rotationZ = 0.f;
+		position = { 0.f,0.f,0.f };
+
+		XMMATRIX matRot;	//	回転行列
+		matRot = XMMatrixIdentity();
+		matRot = XMMatrixRotationZ(XMConvertToRadians(rotationZ));	//	Z軸まわりにrotationZ度回転
+		matWorld *= matRot;	//	ワールド行列に回転を反映
+
+		XMMATRIX matTrans;	//	平行移動行列
+		matTrans = XMMatrixTranslation(position.x, position.y, position.z);	//	(position.x, position.y, position.z)平行移動
+		matWorld *= matTrans;	//	ワールド行列に平行移動を反映
+
+		// 射影変換
+		XMMATRIX matProjection = XMMatrixOrthographicOffCenterLH(
+			0.f, WinApp::window_width,
+			WinApp::window_height, 0.f,
+			0.0f, 1.0f
+		);
+
+		constMapTransform->mat = matWorld * matProjection;
+
 	}
+}
+
+void Sprite::Update()
+{
+	constMapMaterial->color = color_;
+
+	// ワールド変換行列
+	XMMATRIX matWorld;
+	matWorld = XMMatrixIdentity();
+
+	XMMATRIX matRot;	//	回転行列
+	matRot = XMMatrixIdentity();
+	matRot *= XMMatrixRotationZ(rotationZ);	//	Z軸まわりに0度回転
+
+	XMMATRIX matTrans;	//	平行移動行列
+	matTrans = XMMatrixTranslation(position.x, position.y, position.z);	//	(-50.0f, 0, 0)平行移動
+
+	// 射影変換
+	XMMATRIX matProjection = XMMatrixOrthographicOffCenterLH(
+		0.f, WinApp::window_width,
+		WinApp::window_height, 0.f,
+		0.0f, 1.0f
+	);
+
+	constMapTransform->mat = matWorld * matProjection;
+
 }
 
 void Sprite::Draw()

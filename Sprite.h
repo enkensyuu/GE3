@@ -6,9 +6,6 @@
 class Sprite
 {
 private:
-	const int window_width = 1280;
-	const int window_height = 1280;
-
 	// 定数バッファ用データ構造体(マテリアル)
 	struct ConstBufferDataMaterial
 	{
@@ -32,6 +29,9 @@ public:	// メンバ関数
 	// 初期化
 	void Initialize(SpriteCommon* spriteCommon_);
 
+	// 更新
+	void Update();
+
 	// 描画
 	void Draw();
 
@@ -40,6 +40,9 @@ private:
 	SpriteCommon* spriteCommon = nullptr;
 
 	DirectX::XMFLOAT4 color_ = { 1.0f,1.0f,1.0f,1.0f };
+
+	float rotationZ;
+	DirectX::XMFLOAT3 position;
 
 	// 頂点バッファ
 	Microsoft::WRL::ComPtr<ID3D12Resource> vertBuff;
