@@ -46,6 +46,7 @@ public:	// メンバ関数
 
 	// Getter 
 	const DirectX::XMFLOAT4 GetColor() const { return color_; }
+	const uint32_t GetTextureIndex() { return textureIndex_; }
 	const DirectX::XMFLOAT2 GetSize() const { return size; }
 	const float GetRotationZ() const { return rotationZ; }
 	const DirectX::XMFLOAT2 GetPosition() const { return position; }
@@ -56,6 +57,7 @@ public:	// メンバ関数
 
 	// Setter
 	void SetColor(DirectX::XMFLOAT4 color_) { this->color_ = color_; }
+	void SetTextureIndex(uint32_t index) { this->textureIndex_ = index; }
 	void SetSize(const DirectX::XMFLOAT2& size) { this->size = size; }
 	void SetRotationZ(const float& rotationZ) { this->rotationZ = rotationZ; }
 	void SetPosition(const DirectX::XMFLOAT2& position) { this->position = position; }
@@ -67,6 +69,9 @@ public:	// メンバ関数
 private:
 	// スプライト共通部分
 	SpriteCommon* spriteCommon = nullptr;
+
+	// テクスチャ番号
+	uint32_t textureIndex_ = 0;
 
 	DirectX::XMFLOAT4 color_ = { 1.0f,1.0f,1.0f,1.0f };
 	DirectX::XMFLOAT2 size = { 100.0f,100.0f };

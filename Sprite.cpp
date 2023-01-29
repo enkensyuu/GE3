@@ -206,7 +206,7 @@ void Sprite::Update()
 
 	// ワールド変換行列
 	XMMATRIX matWorld;
-	matWorld = XMMatrixIdentity();
+	matWorld = XMMatrixIdentity(); 
 
 	XMMATRIX matRot;	//	回転行列
 	matRot = XMMatrixIdentity();
@@ -231,11 +231,10 @@ void Sprite::Update()
 void Sprite::Draw()
 {
 	// 非表示
-	if (IsInvisible)
-	{
-		return;
-	}
+	if (IsInvisible) return;
 
+	// テクスチャコマンド
+	spriteCommon->SetTextureCommands(textureIndex_);
 	spriteCommon->GetDirectXCommon()->GetCommandList()->IASetVertexBuffers(0, 1, &vbView);
 	spriteCommon->GetDirectXCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(0, constBuffMaterial->GetGPUVirtualAddress());
 	spriteCommon->GetDirectXCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(2, constBuffTransform->GetGPUVirtualAddress());
