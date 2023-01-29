@@ -35,8 +35,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma region 最初のシーンの初期化
 
-	Sprite* sprite = new Sprite();
+	Sprite* sprite = nullptr;
+	sprite = new Sprite();
 	sprite->Initialize(spriteCommon);
+	sprite->SetColor({ 1,0,0,1 });
 
 #pragma endregion
 
@@ -59,7 +61,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma endregion
 
 #pragma region 最初のシーンの更新
+
+		DirectX::XMFLOAT2 size = sprite->GetSize();
+		size.y += 0.1f;
+		sprite->SetSize(size);
 		sprite->Update();
+
 #pragma endregion
 
 		// 描画前処理
@@ -72,6 +79,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		// 描画後処理
 		dxCommon->PostDraw();
+
+		if (input->TriggerKey(DIK_ESCAPE))
+		{
+			break;
+		}
 	}
 
 #pragma endregion

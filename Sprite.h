@@ -24,6 +24,15 @@ private:
 		DirectX::XMFLOAT2 uv;	//	uv座標
 	};
 
+	// 構造体
+public:
+	enum VertexNumber {
+		LB,	//	右下
+		LT,	//	右上
+		RB,	//	左下
+		RT,	//	左上
+	};
+
 public:	// メンバ関数
 
 	// 初期化
@@ -35,14 +44,44 @@ public:	// メンバ関数
 	// 描画
 	void Draw();
 
+	// Getter 
+	const DirectX::XMFLOAT4 GetColor() const { return color_; }
+	const DirectX::XMFLOAT2 GetSize() const { return size; }
+	const float GetRotationZ() const { return rotationZ; }
+	const DirectX::XMFLOAT2 GetPosition() const { return position; }
+	const DirectX::XMFLOAT2 GetAnchorPoint() const { return anchorPoint_; }
+	const bool& GetFlipX() const { return IsFlipX; }
+	const bool& GetFlipY() const { return IsFlipY; }
+	const bool& GetIsInvisible() const { return IsInvisible; }
+
+	// Setter
+	void SetColor(DirectX::XMFLOAT4 color_) { this->color_ = color_; }
+	void SetSize(const DirectX::XMFLOAT2& size) { this->size = size; }
+	void SetRotationZ(const float& rotationZ) { this->rotationZ = rotationZ; }
+	void SetPosition(const DirectX::XMFLOAT2& position) { this->position = position; }
+	void SetAnchorPoint(const DirectX::XMFLOAT2& anchorPoint_) { this->anchorPoint_ = anchorPoint_; }
+	void SetIsFlipX(const bool& IsFlipX) { this->IsFlipX = IsFlipX; }
+	void SetIsFlipY(const bool& IsFlipY) { this->IsFlipY = IsFlipY; }
+	void SetIsInvisible(const bool& IsInvisible) { this->IsInvisible = IsInvisible; }
+
 private:
 	// スプライト共通部分
 	SpriteCommon* spriteCommon = nullptr;
 
 	DirectX::XMFLOAT4 color_ = { 1.0f,1.0f,1.0f,1.0f };
+	DirectX::XMFLOAT2 size = { 100.0f,100.0f };
+	float rotationZ = 0.0f;
+	DirectX::XMFLOAT2 position = { 100.0f,100.0f };
+	DirectX::XMFLOAT2 anchorPoint_ = { 0.0f,0.0f };
 
-	float rotationZ;
-	DirectX::XMFLOAT3 position;
+
+	bool IsFlipX = false;
+	bool IsFlipY = false;
+
+	bool IsInvisible = false;
+
+	// 頂点データ
+	Vertex vertices[4];
 
 	// 頂点バッファ
 	Microsoft::WRL::ComPtr<ID3D12Resource> vertBuff;
@@ -55,4 +94,5 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> constBuffTransform;
 	ConstBufferDataTransform* constMapTransform = nullptr;
 };
+
 
