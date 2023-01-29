@@ -36,7 +36,7 @@ public:
 public:	// メンバ関数
 
 	// 初期化
-	void Initialize(SpriteCommon* spriteCommon_);
+	void Initialize(SpriteCommon* spriteCommon_, uint32_t textureIndex = UINT32_MAX);
 
 	// 更新
 	void Update();
@@ -51,6 +51,8 @@ public:	// メンバ関数
 	const float GetRotationZ() const { return rotationZ; }
 	const DirectX::XMFLOAT2 GetPosition() const { return position; }
 	const DirectX::XMFLOAT2 GetAnchorPoint() const { return anchorPoint_; }
+	const DirectX::XMFLOAT2 GetTextureLeftTop() const { return textureLeftTop_; }
+	const DirectX::XMFLOAT2 GetTextureSize() const { return textureSize_; }
 	const bool& GetFlipX() const { return IsFlipX; }
 	const bool& GetFlipY() const { return IsFlipY; }
 	const bool& GetIsInvisible() const { return IsInvisible; }
@@ -62,9 +64,15 @@ public:	// メンバ関数
 	void SetRotationZ(const float& rotationZ) { this->rotationZ = rotationZ; }
 	void SetPosition(const DirectX::XMFLOAT2& position) { this->position = position; }
 	void SetAnchorPoint(const DirectX::XMFLOAT2& anchorPoint_) { this->anchorPoint_ = anchorPoint_; }
+	void SetTextureLeftTop(const DirectX::XMFLOAT2& leftTop_) { this->textureLeftTop_ = leftTop_; }
+	void SetTextureSize(const DirectX::XMFLOAT2& size_) { this->textureSize_ = size_; }
 	void SetIsFlipX(const bool& IsFlipX) { this->IsFlipX = IsFlipX; }
 	void SetIsFlipY(const bool& IsFlipY) { this->IsFlipY = IsFlipY; }
 	void SetIsInvisible(const bool& IsInvisible) { this->IsInvisible = IsInvisible; }
+
+private:
+	// テクスチャサイズをイメージに合わせる
+	void AdjustTextureSize();
 
 private:
 	// スプライト共通部分
@@ -76,9 +84,13 @@ private:
 	DirectX::XMFLOAT4 color_ = { 1.0f,1.0f,1.0f,1.0f };
 	DirectX::XMFLOAT2 size = { 100.0f,100.0f };
 	float rotationZ = 0.0f;
-	DirectX::XMFLOAT2 position = { 100.0f,100.0f };
+	DirectX::XMFLOAT2 position = { 0.0f,0.0f };
 	DirectX::XMFLOAT2 anchorPoint_ = { 0.0f,0.0f };
 
+	// テクスチャ左上座標
+	DirectX::XMFLOAT2 textureLeftTop_ = { 0.0f,0.0f };
+	// テクスチャ切り出しサイズ
+	DirectX::XMFLOAT2 textureSize_ = { 100.0f,100.0f };
 
 	bool IsFlipX = false;
 	bool IsFlipY = false;

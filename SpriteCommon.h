@@ -33,6 +33,7 @@ public:	// ƒƒ“ƒoŠÖ”
 	void SetTextureCommands(uint32_t index);
 
 	DirectXCommon* GetDirectXCommon() { return dxCommon; }
+	ID3D12Resource* GetTextureBuffer(uint32_t index) { return texBuff[index].Get(); }
 
 private: //	Ã“Iƒƒ“ƒo•Ï”
 
