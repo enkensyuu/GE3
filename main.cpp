@@ -3,6 +3,7 @@
 #include"DirectXCommon.h"
 #include "Sprite.h"
 #include "SpriteCommon.h"
+#include "Object3d.h"
 
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
@@ -37,9 +38,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma region 最初のシーンの初期化
 
+	// 3Dオブジェクト静的初期化
+	Object3d::StaticInitialize(dxCommon->GetDevice(), WinApp::window_width, WinApp::window_height);
+
 	Sprite* sprite = nullptr;
 	sprite = new Sprite();
 	sprite->Initialize(spriteCommon,1);
+
+	// 3Dオブジェクト生成
+	Object3d* object3d = Object3d::Create();
 
 #pragma endregion
 
@@ -63,10 +70,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma region 最初のシーンの更新
 
-		DirectX::XMFLOAT2 size = sprite->GetSize();
+		// 3Dオブジェクト更新
+		object3d->Update();
+
+		/*DirectX::XMFLOAT2 size = sprite->GetSize();
 		size.y += 0.1f;
 		sprite->SetSize(size);
-		sprite->Update();
+		sprite->Update();*/
 
 #pragma endregion
 
@@ -74,8 +84,24 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		dxCommon->PreDraw();
 
 #pragma region 最初のシーンの描画
+
+		// 3Dオブジェクト描画前処理
+		Object3d::PreDraw(dxCommon->GetCommandList());
+
+		// 3Dオブジェクトの描画
+		object3d->Draw();
+
+		/// <summary>
+		/// ここに3Dオブジェクトの描画処理を追加できる
+		/// </summary>
+		
+		// 3Dオブジェクト描画後処理
+		Object3d::PostDraw();
+
+		// スプライト描画開始
 		spriteCommon->PreDraw();
-		sprite->Draw();
+		//sprite->Draw();
+		// スプライト描画終了
 		spriteCommon->PostDraw();
 #pragma endregion
 
@@ -91,6 +117,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma endregion
 
 #pragma region 最初のシーンの終了
+
+	// 3Dオブジェクト解放
+	delete object3d;
 	delete sprite;
 #pragma endregion
 
