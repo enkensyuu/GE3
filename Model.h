@@ -19,13 +19,24 @@ public: // サブクラス
 		DirectX::XMFLOAT2 uv;  // uv座標
 	};
 
+	// 定数バッファ用データ構造体B1
+	struct ConstBufferDataB1
+	{
+		DirectX::XMFLOAT3 ambient; // アンビエント係数
+		float pad1;       // パディング
+		DirectX::XMFLOAT3 diffuse; // ディフューズ係数
+		float pad2;       // パディング
+		DirectX::XMFLOAT3 specular; // スペキュラー係数
+		float alpha;       // アルファ
+	};
+
 	// マテリアル
 	struct Material
 	{
 		std::string name; // マテリアル名
-		XMFLOAT3 ambient; // アンビエント影響度
-		XMFLOAT3 diffuse; // ディフェーズ影響度
-		XMFLOAT3 specular;// スペキュラー影響度
+		DirectX::XMFLOAT3 ambient; // アンビエント影響度
+		DirectX::XMFLOAT3 diffuse; // ディフェーズ影響度
+		DirectX::XMFLOAT3 specular;// スペキュラー影響度
 		float alpha;      // アルファ
 		std::string textureFilename; // テクスチャファイル名
 		// コンストラクタ
@@ -55,7 +66,22 @@ public: // メンバ関数
 	/// <summary>
 	/// テクスチャ読み込み
 	/// </summary>
-	bool LoadTexture(const std::string& directoryPath, const std::string& filename);
+	void LoadTexture(const std::string& directoryPath, const std::string& filename);
+
+	/// <summary>
+	/// デスクリプタヒープの初期化
+	/// </summary>
+	void InitializeDescriptorHeap();
+
+	// 各種バッファの生成
+	void CreateBuffers();
+
+	/// <summary>
+	/// 描画
+	/// </summary>
+	/// <param name="cmdList">描画コマンドリスト</param>
+	/// <param name="rootParamIndexMaterial">マテリアル用ルートパラメータ番号</param>
+	void Draw(ID3D12GraphicsCommandList* cmdList, UINT rootParamIndexMaterial);
 
 private: // 静的メンバ変数
 
@@ -79,6 +105,16 @@ private: // メンバ変数
 	CD3DX12_GPU_DESCRIPTOR_HANDLE gpuDescHandleSRV;
 	// デスクリプタサイズ
 	UINT descriptorHandleIncrementSize;
+	// 頂点バッファ
+	Microsoft::WRL::ComPtr<ID3D12Resource> vertBuff;
+	// インデックスバッファ
+	Microsoft::WRL::ComPtr<ID3D12Resource> indexBuff;
+	// 頂点バッファビュー
+	D3D12_VERTEX_BUFFER_VIEW vbView;
+	// インデックスバッファビュー
+	D3D12_INDEX_BUFFER_VIEW ibView;
+	// マテリアル用定数バッファ
+	Microsoft::WRL::ComPtr<ID3D12Resource> constBuffB1;
 
 private: // 非公開のメンバ関数
 	// OBJファイルから3Dモデルを読み込む(非公開)

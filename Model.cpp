@@ -14,7 +14,14 @@ Model* Model::LoadFromOBJ()
 {
 	Model* model_ = new Model();
 
+	// デスクリプタヒープ生成
+	model_->InitializeDescriptorHeap();
+
+	// OBJファイルからデータを読み込む
 	model_->LoadFromOBJInternal();
+
+	// バッファ生成
+	model_->CreateBuffers();
 
 	return model_;
 }
@@ -84,7 +91,7 @@ void Model::LoadMaterial(const std::string& directoryPath, const std::string& fi
 	file.close();
 }
 
-bool Model::LoadTexture(const std::string& directoryPath, const std::string& filename)
+void Model::LoadTexture(const std::string& directoryPath, const std::string& filename)
 {
 	HRESULT result = S_FALSE;
 
@@ -167,6 +174,258 @@ bool Model::LoadTexture(const std::string& directoryPath, const std::string& fil
 		&srvDesc, //テクスチャ設定情報
 		cpuDescHandleSRV
 	);
+}
+
+void Model::InitializeDescriptorHeap()
+{
+	assert(device_);
+
+	HRESULT result = S_FALSE;
+
+	// デスクリプタヒープを生成	
+	D3D12_DESCRIPTOR_HEAP_DESC descHeapDesc = {};
+	descHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	descHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;//シェーダから見えるように
+	descHeapDesc.NumDescriptors = 1; // シェーダーリソースビュー1つ
+	result = device_->CreateDescriptorHeap(&descHeapDesc, IID_PPV_ARGS(&descHeap));//生成
+	if (FAILED(result)) {
+		assert(0);
+		return;
+	}
+
+	// デスクリプタサイズを取得
+	descriptorHandleIncrementSize = device_->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
+}
+
+void Model::CreateBuffers()
+{
+	HRESULT result = S_FALSE;
+
+	std::vector<VertexPosNormalUv> realVertices;
+
+	{
+		// 頂点座標の計算（重複あり）
+		//{
+		//	realVertices.resize((division + 1) * 2);
+		//	int index = 0;
+		//	float zValue;
+
+		//	// 底面
+		//	zValue = prizmHeight / 2.0f;
+		//	for (int i = 0; i < division; i++)
+		//	{
+		//		XMFLOAT3 vertex;
+		//		vertex.x = radius * sinf(XM_2PI / division * i);
+		//		vertex.y = radius * cosf(XM_2PI / division * i);
+		//		vertex.z = zValue;
+		//		realVertices[index++].pos = vertex;
+		//	}
+		//	realVertices[index++].pos = XMFLOAT3(0, 0, zValue);	// 底面の中心点
+		//	// 天面
+		//	zValue = -prizmHeight / 2.0f;
+		//	for (int i = 0; i < division; i++)
+		//	{
+		//		XMFLOAT3 vertex;
+		//		vertex.x = radius * sinf(XM_2PI / division * i);
+		//		vertex.y = radius * cosf(XM_2PI / division * i);
+		//		vertex.z = zValue;
+		//		realVertices[index++].pos = vertex;
+		//	}
+		//	realVertices[index++].pos = XMFLOAT3(0, 0, zValue);	// 天面の中心点
+		//}
+
+		// 頂点座標の計算（重複なし）
+		//{
+		//	int index = 0;
+		//	// 底面
+		//	for (int i = 0; i < division; i++)
+		//	{
+		//		unsigned short index0 = i + 1;
+		//		unsigned short index1 = i;
+		//		unsigned short index2 = division;
+
+		//		vertices[index++] = realVertices[index0];
+		//		vertices[index++] = realVertices[index1];
+		//		vertices[index++] = realVertices[index2]; // 底面の中心点
+		//	}
+		//	// 底面の最後の三角形の1番目のインデックスを0に書き換え
+		//	vertices[index - 3] = realVertices[0];
+
+		//	int topStart = division + 1;
+		//	// 天面
+		//	for (int i = 0; i < division; i++)
+		//	{
+		//		unsigned short index0 = topStart + i;
+		//		unsigned short index1 = topStart + i + 1;
+		//		unsigned short index2 = topStart + division;
+
+		//		vertices[index++] = realVertices[index0];
+		//		vertices[index++] = realVertices[index1];
+		//		vertices[index++] = realVertices[index2]; // 天面の中心点
+		//	}
+		//	// 天面の最後の三角形の1番目のインデックスを0に書き換え
+		//	vertices[index - 2] = realVertices[topStart];
+
+		//	// 側面
+		//	for (int i = 0; i < division; i++)
+		//	{
+		//		unsigned short index0 = i + 1;
+		//		unsigned short index1 = topStart + i + 1;
+		//		unsigned short index2 = i;
+		//		unsigned short index3 = topStart + i;
+
+		//		if (i == division - 1)
+		//		{
+		//			index0 = 0;
+		//			index1 = topStart;
+		//		}
+
+		//		vertices[index++] = realVertices[index0];
+		//		vertices[index++] = realVertices[index1];
+		//		vertices[index++] = realVertices[index2];
+
+		//		vertices[index++] = realVertices[index2];
+		//		vertices[index++] = realVertices[index1];
+		//		vertices[index++] = realVertices[index3];
+		//	}
+		//}
+
+		// 頂点インデックスの設定
+		/*{
+			for (int i = 0; i < _countof(indices); i++)
+			{
+				indices[i] = i;
+			}
+		}*/
+
+		// 法線方向の計算
+		//for (int i = 0; i < _countof(indices) / 3; i++)
+		//{// 三角形１つごとに計算していく
+		//	// 三角形のインデックスを取得
+		//	unsigned short index0 = indices[i * 3 + 0];
+		//	unsigned short index1 = indices[i * 3 + 1];
+		//	unsigned short index2 = indices[i * 3 + 2];
+		//	// 三角形を構成する頂点座標をベクトルに代入
+		//	XMVECTOR p0 = XMLoadFloat3(&vertices[index0].pos);
+		//	XMVECTOR p1 = XMLoadFloat3(&vertices[index1].pos);
+		//	XMVECTOR p2 = XMLoadFloat3(&vertices[index2].pos);
+		//	// p0→p1ベクトル、p0→p2ベクトルを計算
+		//	XMVECTOR v1 = XMVectorSubtract(p1, p0);
+		//	XMVECTOR v2 = XMVectorSubtract(p2, p0);
+		//	// 外積は両方から垂直なベクトル
+		//	XMVECTOR normal = XMVector3Cross(v1, v2);
+		//	// 正規化（長さを1にする)
+		//	normal = XMVector3Normalize(normal);
+		//	// 求めた法線を頂点データに代入
+		//	XMStoreFloat3(&vertices[index0].normal, normal);
+		//	XMStoreFloat3(&vertices[index1].normal, normal);
+		//	XMStoreFloat3(&vertices[index2].normal, normal);
+		//}
+	}
+
+	/*UINT sizeVB = static_cast<UINT>(sizeof(vertices));*/
+	UINT sizeVB = static_cast<UINT>(sizeof(VertexPosNormalUv) * vertices.size());
+
+	// ヒーププロパティ
+	CD3DX12_HEAP_PROPERTIES heapProps = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+	// リソース設定
+	CD3DX12_RESOURCE_DESC resourceDesc = CD3DX12_RESOURCE_DESC::Buffer(sizeVB);
+
+	// 頂点バッファ生成
+	result = device_->CreateCommittedResource(
+		&heapProps, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
+		IID_PPV_ARGS(&vertBuff));
+	assert(SUCCEEDED(result));
+
+	// 頂点バッファへのデータ転送
+	VertexPosNormalUv* vertMap = nullptr;
+	result = vertBuff->Map(0, nullptr, (void**)&vertMap);
+	if (SUCCEEDED(result)) {
+		/*memcpy(vertMap, vertices, sizeof(vertices));*/
+		std::copy(vertices.begin(), vertices.end(), vertMap);
+		vertBuff->Unmap(0, nullptr);
+	}
+
+	// 頂点バッファビューの作成
+	vbView.BufferLocation = vertBuff->GetGPUVirtualAddress();
+	/*vbView.SizeInBytes = sizeof(vertices);*/
+	vbView.SizeInBytes = sizeVB;
+	vbView.StrideInBytes = sizeof(vertices[0]);
+
+	/*UINT sizeIB = static_cast<UINT>(sizeof(indices));*/
+	UINT sizeIB = static_cast<UINT>(sizeof(unsigned short) * indices.size());
+	// リソース設定
+	resourceDesc.Width = sizeIB;
+
+	// インデックスバッファ生成
+	result = device_->CreateCommittedResource(
+		&heapProps, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
+		IID_PPV_ARGS(&indexBuff));
+
+	// インデックスバッファへのデータ転送
+	unsigned short* indexMap = nullptr;
+	result = indexBuff->Map(0, nullptr, (void**)&indexMap);
+	if (SUCCEEDED(result)) {
+
+		// 全インデックスに対して
+		//for (int i = 0; i < _countof(indices); i++)
+		//{
+		//	indexMap[i] = indices[i];	// インデックスをコピー
+		//}
+
+		std::copy(indices.begin(), indices.end(), indexMap);
+
+		indexBuff->Unmap(0, nullptr);
+	}
+
+	// インデックスバッファビューの作成
+	ibView.BufferLocation = indexBuff->GetGPUVirtualAddress();
+	ibView.Format = DXGI_FORMAT_R16_UINT;
+	/*ibView.SizeInBytes = sizeof(indices);*/
+	ibView.SizeInBytes = sizeIB;
+
+	resourceDesc = CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB1) + 0xff) & ~0xff);
+
+	// 定数バッファの生成
+	result = device_->CreateCommittedResource(
+		&heapProps,
+		D3D12_HEAP_FLAG_NONE,
+		&resourceDesc,
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(&constBuffB1)
+	);
+	assert(SUCCEEDED(result));
+
+	// 定数バッファへデータ転送
+	ConstBufferDataB1* constMap1 = nullptr;
+	result = constBuffB1->Map(0, nullptr, (void**)&constMap1);
+	assert(SUCCEEDED(result));
+	constMap1->ambient = material.ambient;
+	constMap1->diffuse = material.diffuse;
+	constMap1->specular = material.specular;
+	constMap1->alpha = material.alpha;
+	constBuffB1->Unmap(0, nullptr);
+
+}
+
+void Model::Draw(ID3D12GraphicsCommandList* cmdList, UINT rootParamIndexMaterial)
+{
+	// 頂点バッファの設定
+	cmdList->IASetVertexBuffers(0, 1, &vbView);
+	// インデックスバッファの設定
+	cmdList->IASetIndexBuffer(&ibView);
+	// マテリアル用定数バッファビューをセット
+	cmdList->SetGraphicsRootConstantBufferView(1, constBuffB1->GetGPUVirtualAddress());
+	// デスクリプタヒープの配列
+	ID3D12DescriptorHeap* ppHeaps[] = { descHeap.Get() };
+	cmdList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
+	// シェーダリソースビューをセット
+	cmdList->SetGraphicsRootDescriptorTable(2, gpuDescHandleSRV);
+	// 描画コマンド
+	cmdList->DrawIndexedInstanced((UINT)indices.size(), 1, 0, 0, 0);
+
 }
 
 void Model::LoadFromOBJInternal()
