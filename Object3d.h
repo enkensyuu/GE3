@@ -151,6 +151,18 @@ public: // メンバ関数
 	const XMFLOAT3& GetPosition() const { return position; }
 
 	/// <summary>
+	/// 大きさの設定
+	/// </summary>
+	/// <param name="position">大きさ</param>
+	void SetScale(const XMFLOAT3& scale) { this->scale = scale; }
+
+	/// <summary>
+	/// 角度の設定
+	/// </summary>
+	/// <param name="position">角度</param>
+	void SetRotation(const XMFLOAT3& rotation) { this->rotation = rotation; }
+
+	/// <summary>
 	/// 座標の設定
 	/// </summary>
 	/// <param name="position">座標</param>
