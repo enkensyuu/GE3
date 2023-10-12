@@ -5,6 +5,7 @@
 #include <d3d12.h>
 #include <DirectXMath.h>
 #include <d3dx12.h>
+#include "Model.h"
 
 /// <summary>
 /// 3Dオブジェクト
@@ -21,11 +22,10 @@ private: // エイリアス
 	using XMMATRIX = DirectX::XMMATRIX;
 
 public: // サブクラス
-	
+
 	// 定数バッファ用データ構造体B0
 	struct ConstBufferDataB0
 	{
-		//XMFLOAT4 color;	// 色 (RGBA)
 		XMMATRIX mat;	// ３Ｄ変換行列
 	};
 
@@ -113,7 +113,7 @@ private: // 静的メンバ変数
 	static XMFLOAT3 up;
 
 private:// 静的メンバ関数
-	
+
 	/// <summary>
 	/// カメラ初期化
 	/// </summary>
@@ -156,11 +156,15 @@ public: // メンバ関数
 	/// <param name="position">座標</param>
 	void SetPosition(const XMFLOAT3& position) { this->position = position; }
 
+	void SetModel(Model* model) { this->model_ = model; }
+
 private: // メンバ変数
-	//ComPtr<ID3D12Resource> constBuff; // 定数バッファ
-	ComPtr<ID3D12Resource> constBuffB0; // 定数バッファ
+
+	// 3Dモデル
+	Model* model_ = nullptr;
+	// 定数バッファ
+	ComPtr<ID3D12Resource> constBuffB0;
 	// 色
-	XMFLOAT4 color = { 1,1,1,1 };
 	// ローカルスケール
 	XMFLOAT3 scale = { 1,1,1 };
 	// X,Y,Z軸回りのローカル回転角

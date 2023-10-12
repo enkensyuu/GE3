@@ -4,6 +4,7 @@
 #include "Sprite.h"
 #include "SpriteCommon.h"
 #include "Object3d.h"
+#include "Model.h"
 
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
@@ -45,8 +46,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	sprite = new Sprite();
 	sprite->Initialize(spriteCommon,1);
 
+	// OBJからモデルデータを読み込む
+	Model* model1_ = Model::LoadFromOBJ("triangle_mat");
+	Model* model2_ = Model::LoadFromOBJ("triangle_mat2");
+	
 	// 3Dオブジェクト生成
-	Object3d* object3d = Object3d::Create();
+	Object3d* object3d1_ = Object3d::Create();
+	Object3d* object3d2_ = Object3d::Create();
+	// オブジェクトにモデルをひも付ける
+	object3d1_->SetModel(model1_);
+	object3d2_->SetModel(model2_);
+	// 3Dオブジェクトの位置を指定
+	object3d2_->SetPosition({ -5,-5,-5 });
+
 
 #pragma endregion
 
@@ -71,7 +83,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma region 最初のシーンの更新
 
 		// 3Dオブジェクト更新
-		object3d->Update();
+		object3d1_->Update();
+		object3d2_->Update();
 
 		/*DirectX::XMFLOAT2 size = sprite->GetSize();
 		size.y += 0.1f;
@@ -89,7 +102,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Object3d::PreDraw(dxCommon->GetCommandList());
 
 		// 3Dオブジェクトの描画
-		object3d->Draw();
+		object3d1_->Draw();
+		object3d2_->Draw();
 
 		/// <summary>
 		/// ここに3Dオブジェクトの描画処理を追加できる
@@ -118,9 +132,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma region 最初のシーンの終了
 
+	// 3Dモデル解放
+	delete model1_;
+	delete model2_;
+
 	// 3Dオブジェクト解放
-	delete object3d;
+	delete object3d1_;
+	delete object3d2_;
+
+	// スプライト解放
 	delete sprite;
+	
 #pragma endregion
 
 #pragma region 基盤システムの終了

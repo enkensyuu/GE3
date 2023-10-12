@@ -51,7 +51,7 @@ public: // サブクラス
 public: // 静的メンバ関数
 
 	// OBJファイルから3D
-	static Model* LoadFromOBJ();
+	static Model* LoadFromOBJ(const std::string& modelname);
 
 	static void SetDevice(ID3D12Device* device) { Model::device_ = device; }
 
@@ -62,7 +62,7 @@ public: // メンバ関数
 	/// </summary>
 	/// <returns>成否</returns>
 	void LoadMaterial(const std::string& directoryPath, const std::string& filename);
-	
+
 	/// <summary>
 	/// テクスチャ読み込み
 	/// </summary>
@@ -88,7 +88,7 @@ private: // 静的メンバ変数
 	static ID3D12Device* device_;
 
 private: // メンバ変数
-	
+
 	// 頂点データ配列
 	std::vector<VertexPosNormalUv> vertices;
 	// 頂点インデックス配列
@@ -118,7 +118,7 @@ private: // メンバ変数
 
 private: // 非公開のメンバ関数
 	// OBJファイルから3Dモデルを読み込む(非公開)
-	void LoadFromOBJInternal();
+	void LoadFromOBJInternal(const std::string& modelname);
 
 };
 
