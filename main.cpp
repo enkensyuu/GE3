@@ -5,6 +5,47 @@
 #include "SpriteCommon.h"
 #include "Object3d.h"
 #include "Model.h"
+#include <xaudio2.h>
+#include <fstream>
+
+#pragma comment(lib,"xaudio2.lib")
+
+// チャンクヘッダ
+struct ChunkHeader
+{
+	char id[4];		//	チャンク毎のID
+	int32_t size;	//	チャンクサイズ
+};
+
+// RIFFヘッダチャンク
+struct RiffHeader
+{
+	ChunkHeader chunk;	//	"RIFF"
+	char type[4];		//	"WAVE"
+};
+
+// FMTチャンク
+struct FormatChank
+{
+	ChunkHeader chunk;	//	"fmt"
+	WAVEFORMATEX fmt;	//	波形フォーマット
+};
+
+// 音声データ
+struct SoundData
+{
+	// 波形フォーマット
+	WAVEFORMATEX wfex;
+	// バッファの先頭アドレス
+	BYTE* pBuffer;
+	// バッファのサイズ
+	unsigned int bufferSize;
+};
+
+SoundData SoundLoadWave(const char* filename)
+{
+
+}
 
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
@@ -35,6 +76,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	spriteCommon->LoadTexture(0, "texture.png");
 	spriteCommon->LoadTexture(1, "reimu.png");
 
+	Microsoft::WRL::ComPtr<IXAudio2> xAudio2;
+	IXAudio2MasteringVoice* masterVoice;
+
+	// XAudioエンジンのインスタンスを生成
+	result = XAudio2Create(&xAudio2, 0, XAUDIO2_DEFAULT_PROCESSOR);
+	// マスターボイスを生成
+	result = xAudio2->CreateMasteringVoice(&masterVoice);
+
 #pragma endregion
 
 #pragma region 最初のシーンの初期化
@@ -44,12 +93,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	Sprite* sprite = nullptr;
 	sprite = new Sprite();
-	sprite->Initialize(spriteCommon,1);
+	sprite->Initialize(spriteCommon, 1);
 
 	// OBJからモデルデータを読み込む
 	Model* model1_ = Model::LoadFromOBJ("triangle_mat");
 	Model* model2_ = Model::LoadFromOBJ("triangle_mat2");
-	
+
 	// 3Dオブジェクト生成
 	Object3d* object3d1_ = Object3d::Create();
 	Object3d* object3d2_ = Object3d::Create();
@@ -108,7 +157,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// <summary>
 		/// ここに3Dオブジェクトの描画処理を追加できる
 		/// </summary>
-		
+
 		// 3Dオブジェクト描画後処理
 		Object3d::PostDraw();
 
@@ -142,7 +191,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	// スプライト解放
 	delete sprite;
-	
+
 #pragma endregion
 
 #pragma region 基盤システムの終了
