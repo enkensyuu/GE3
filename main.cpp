@@ -69,7 +69,7 @@ SoundData SoundLoadWave(const char* filename)
 	FormatChunk format = {};
 	// チャンクヘッダーの確認
 	file.read((char*)&format, sizeof(ChunkHeader));
-	if (strncmp(format.chunk.id, "fmt", 4) != 0)
+	if (strncmp(format.chunk.id, "fmt ", 4) != 0)
 	{
 		assert(0);
 	}
@@ -136,7 +136,14 @@ void SoundPlayWave(IXAudio2* xAudio2, const SoundData& soundData)
 	assert(SUCCEEDED(result));
 
 	// 再生する波形データの設定
+	XAUDIO2_BUFFER buf{};
+	buf.pAudioData = soundData.pBuffer;
+	buf.AudioBytes = soundData.bufferSize;
+	buf.Flags = XAUDIO2_END_OF_STREAM;
 
+	// 波形データの再生
+	result = pSourceVoice->SubmitSourceBuffer(&buf);
+	result = pSourceVoice->Start();
 
 }
 
@@ -201,6 +208,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	// 3Dオブジェクトの位置を指定
 	object3d2_->SetPosition({ -5,-5,-5 });
 
+	// 音声読み込み
+	SoundData soundData1 = SoundLoadWave("Resources/Alarm01.wav");
 
 #pragma endregion
 
@@ -227,6 +236,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		// 3Dオブジェクト更新
 		object3d1_->Update();
 		object3d2_->Update();
+
+		if (input->TriggerKey(DIK_SPACE))
+		{
+			// 音声再生
+			SoundPlayWave(xAudio2.Get(), soundData1);
+		}
 
 		/*DirectX::XMFLOAT2 size = sprite->GetSize();
 		size.y += 0.1f;
@@ -273,6 +288,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma endregion
 
 #pragma region 最初のシーンの終了
+
+	// XAudio2解放
+	xAudio2.Reset();
+	// 音声データ解放
+	SoundUnload(&soundData1);
 
 	// 3Dモデル解放
 	delete model1_;
